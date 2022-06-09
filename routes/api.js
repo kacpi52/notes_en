@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const noteActions = require("../actions/api/notes");
 
-router.get("/", (req, res) => {
-  res.send("Serwer działa. ");
-});
+router.get("/", noteActions.saveNote);
 
 module.exports = router;
