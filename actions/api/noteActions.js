@@ -1,37 +1,52 @@
 const Note = require("../../db/models/note");
 class NoteActions {
-  saveNote(req, res) {
-    /*
-    const newNote = new Note({
-      title: "zrob zakupy 2",
-      body: "mleko jajka woda cale te  ",
-    });
-    newNote.save().then(() => {
-      console.log("notatka zostala zapisana ");
-    });
-*/
+  async saveNote(req, res) {
     const title = req.body.title;
     const body = req.body.body;
-    res.send(
-      `notatka zostala stworzona . tytul to ${title} tresc to : ${body}`
-    );
+    let note;
+    try {
+      note = new Note({
+        title, //title:title, to samo co
+        body, //body:body jw
+      });
+      await note.save();
+    } catch (err) {
+      return res.status(422).json({ message: err.message });
+    }
+
+    res.status(201).json(note); // status 201 zapisany
   }
-  getAllNotes(req, res) {
+  async getAllNotes(req, res) {
+    const doc = await Note.find({});
+
+    res.status(200).json(doc); // set statusu na 200
     //pobieranie notatek
     res.send("api dziala all notes ");
   }
-  getNote(req, res) {
-    //pobieranie notatki
+  async getNote(req, res) {
+    //pobieranie notatki konkretnej
+    const id = req.params.id;
+    const note = await Note.findOne({ _id: id });
+    res.status(200).json(note);
     res.send("jedna n");
   }
-  updateNote(req, res) {
+  async updateNote(req, res) {
     //edycja notatki
-    res.send("edycja");
+    const id = req.params.id;
+    const title = req.body.title;
+    const body = req.body.body;
+
+    const note = await Note.findOne({ _id: id });
+    note.title = title;
+    note.body = body;
+    await note.save();
+    res.status(201).json(note);
   }
-  deleteNote(req, res) {
+  async deleteNote(req, res) {
     const id = req.params.id;
     //usuwanie notatki
-    res.send(`usuniecie notatki o id ${id}`);
+    await Note.deleteOne({ _id: id });
+    res.sendStatus(204); // 204 wszystko wykonane ale nic nie zwracane
   }
 }
 module.exports = new NoteActions();
